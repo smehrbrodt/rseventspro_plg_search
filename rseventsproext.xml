@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="search" method="upgrade">
     <name>plg_search_rseventsproext</name>
-    <author>www.rsjoomla.com</author>
     <creationDate>March 2012</creationDate>
-    <copyright>Copyright (C) 2012 www.rsjoomla.com All rights reserved.</copyright>
+    <copyright>Copyright (C) 2012 www.rsjoomla.com; (C) 2014 Samuel Mehrbrodt. All rights reserved.</copyright>
     <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-    <authorEmail>support@rsjoomla.com</authorEmail>
-    <authorUrl>www.rsjoomla.com</authorUrl>
-    <version>1.0</version>
+    <author>Samuel Mehrbrodt</author>
+    <authorEmail>s.mehrbrodt@gmail.com</authorEmail>
+    <authorUrl>https://github.com/smehrbrodt/rseventspro_plg_search</authorUrl>
+    <version>2.0</version>
     <description>PLG_SEARCH_RSEVENTSPROEXT_XML_DESCRIPTION</description>
 
     <files>
+        <folder>language</folder>
         <filename plugin="rseventsproext">rseventsproext.php</filename>
         <filename>index.html</filename>
     </files>
 
-    <languages>
-        <language tag="en-GB">language/en-GB/en-GB.plg_search_rseventsproext.ini</language>
-        <language tag="en-GB">language/en-GB/en-GB.plg_search_rseventsproext.sys.ini</language>
-    </languages>
-
     <config>
         <fields name="params">
             <fieldset name="basic">
-                <field name="search_limit" type="text" default="50" description="PLG_SEARCH_RSEVENTSPROEXT_FIELD_SEARCHLIMIT_DESC" label="PLG_SEARCH_RSEVENTSPROEXT_FIELD_SEARCHLIMIT_LABEL" size="5" />
+                <field name="search_limit"
+                       type="text"
+                       default="50"
+                       description="PLG_SEARCH_RSEVENTSPROEXT_FIELD_SEARCHLIMIT_DESC"
+                       label="PLG_SEARCH_RSEVENTSPROEXT_FIELD_SEARCHLIMIT_LABEL"
+                       size="5" />
             </fieldset>
         </fields>
     </config>
+
 </extension>

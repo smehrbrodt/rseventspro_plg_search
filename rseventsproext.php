@@ -23,8 +23,7 @@ class PlgSearchRseventsproExt extends JPlugin
      * @return array An array of search areas
      */
     public function onContentSearchAreas() {
-        static $areas = array('rseventsproext' => 'PLG_SEARCH_RSEVENTSPROEXT');
-        return $areas;
+        return array('rseventsproext' => 'PLG_SEARCH_RSEVENTSPROEXT');
     }
 
     /**
@@ -37,7 +36,7 @@ class PlgSearchRseventsproExt extends JPlugin
      * @param mixed An array if the search it to be restricted to areas, null if search all
      */
     public function onContentSearch($text, $phrase='', $ordering='', $areas=null) {
-        $db     = JFactory::getDbo();
+        $db = JFactory::getDbo();
         JFactory::getLanguage()->load('plg_search_rseventsproext', JPATH_ADMINISTRATOR);
 
         if (!file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'))
@@ -54,7 +53,7 @@ class PlgSearchRseventsproExt extends JPlugin
             }
         }
 
-        $limit  = $this->params->def('search_limit',        50);
+        $limit  = $this->params->def('search_limit', 50);
 
         $text = trim($text);
         if ($text == '') {
