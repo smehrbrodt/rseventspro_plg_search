@@ -169,7 +169,7 @@ class PlgSearchRseventsproExt extends JPlugin
                 $list[$key]->text = strip_tags($item->text);
                 //Icon
                 $list[$key]->image = JURI::root().
-                                    'components/com_rseventspro/assets/images/thumbs/s_'.
+                                    'components/com_rseventspro/assets/images/events/thumbs/s_'.
                                     $list[$key]->icon;
             }
         }
