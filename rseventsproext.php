@@ -138,8 +138,11 @@ class PlgSearchRseventsproExt extends JPlugin
         // search query
         $query->clear();
 
-        $query->select('e.id, e.name AS title, e.start AS created');
-        $query->select('e.description AS text');
+        $query->select('e.id,
+                       e.name AS title,
+                       e.start AS created,
+                       e.icon,
+                       e.description AS text');
         $query->select('e.URL AS section, \'2\' AS browsernav');
 
         $query->from('#__rseventspro_events AS e');
@@ -164,6 +167,10 @@ class PlgSearchRseventsproExt extends JPlugin
                                                              true,
                                                              RseventsproHelperRoute::getEventsItemid());
                 $list[$key]->text = strip_tags($item->text);
+                //Icon
+                $list[$key]->image = JURI::root().
+                                    'components/com_rseventspro/assets/images/thumbs/s_'.
+                                    $list[$key]->icon;
             }
         }
         $rows[] = $list;
