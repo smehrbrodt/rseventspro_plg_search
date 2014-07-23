@@ -140,7 +140,7 @@ class PlgSearchRseventsproExt extends JPlugin
 
         $query->select('e.id, e.name AS title, e.start AS created');
         $query->select('e.description AS text');
-        $query->select('e.name AS section, \'2\' AS browsernav');
+        $query->select('e.URL AS section, \'2\' AS browsernav');
 
         $query->from('#__rseventspro_events AS e');
         $query->leftJoin('#__rseventspro_locations AS l ON e.location = l.id');
@@ -156,30 +156,14 @@ class PlgSearchRseventsproExt extends JPlugin
 
         if (isset($list)) {
             foreach($list as $key => $item) {
-                if (!rseventsproHelper::canview($item->id)) unset($list[$key]);
+                if (!rseventsproHelper::canview($item->id))
+                    unset($list[$key]);
 
-                $query  = $db->getQuery(true);
-
-                // search query
-                $query->clear();
-
-                $query->select('c.title');
-                $query->from('#__categories AS c');
-                $query->leftJOIN('#__rseventspro_taxonomy t ON t.id = c.id');
-                $query->where("t.ide = ".(int) $item->id." AND t.`type` = 'category'");
-
-                if (JLanguageMultilang::isEnabled()) {
-                    $query->where('c.language IN ('.$db->q(JFactory::getLanguage()->getTag()).','.$db->q('*').')');
-                }
-                $query->where('c.access IN ('.$groups.')');
-
-                $db->setQuery($query);
-                $categories = $db->loadColumn();
-                $categories = !empty($categories) ? ' - '.implode(',',$categories) : '';
-
-                $list[$key]->href = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($item->id,$item->title),true,RseventsproHelperRoute::getEventsItemid());
+                $list[$key]->href = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.
+                                                             rseventsproHelper::sef($item->id,$item->title),
+                                                             true,
+                                                             RseventsproHelperRoute::getEventsItemid());
                 $list[$key]->text = strip_tags($item->text);
-                $list[$key]->section = $categories;
             }
         }
         $rows[] = $list;
