@@ -25,6 +25,22 @@
                        description="PLG_SEARCH_RSEVENTSPROEXT_FIELD_SEARCHLIMIT_DESC"
                        label="PLG_SEARCH_RSEVENTSPROEXT_FIELD_SEARCHLIMIT_LABEL"
                        size="5" />
+                <field name="enable_event_description_search"
+                       type="radio"
+                       default="1"
+                       label="PLG_SEARCH_RSEVENTSPROEXT_ENABLE_DESC_SEARCH"
+                       description="PLG_SEARCH_RSEVENTSPROEXT_ENABLE_DESC_SEARCH_DESC">
+                    <option value="1">JGLOBAL_YES</option>
+                    <option value="0">JGLOBAL_NO</option>
+                </field>
+                <field name="enable_event_location_search"
+                       type="radio"
+                       default="1"
+                       label="PLG_SEARCH_RSEVENTSPROEXT_ENABLE_LOCATION_SEARCH"
+                       description="PLG_SEARCH_RSEVENTSPROEXT_ENABLE_LOCATION_SEARCH_DESC">
+                    <option value="1">JGLOBAL_YES</option>
+                    <option value="0">JGLOBAL_NO</option>
+                </field>
             </fieldset>
         </fields>
     </config>
