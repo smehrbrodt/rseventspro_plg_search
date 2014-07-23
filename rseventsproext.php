@@ -3,6 +3,7 @@
 * @version 1.0.0
 * @package RSEvents!Pro 1.0.0
 * @copyright (C) 2011 www.rsjoomla.com
+*                2014 Samuel Mehrbrodt
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -10,19 +11,19 @@
 defined('_JEXEC') or die;
 
 /**
- * REvents!Pro Search plugin
+ * REvents!Pro Extended Search plugin
  *
  * @package     Joomla.Plugin
  * @subpackage  RSEvents!Pro.events
  * @since       1.6
  */
-class plgSearchRseventspro extends JPlugin
+class PlgSearchRseventsproExt extends JPlugin
 {
     /**
      * @return array An array of search areas
      */
     public function onContentSearchAreas() {
-        static $areas = array('rseventspro' => 'PLG_SEARCH_RSEVENTSPRO');
+        static $areas = array('rseventsproext' => 'PLG_SEARCH_RSEVENTSPROEXT');
         return $areas;
     }
 
@@ -37,7 +38,7 @@ class plgSearchRseventspro extends JPlugin
      */
     public function onContentSearch($text, $phrase='', $ordering='', $areas=null) {
         $db     = JFactory::getDbo();
-        JFactory::getLanguage()->load('plg_search_rseventspro',JPATH_ADMINISTRATOR);
+        JFactory::getLanguage()->load('plg_search_rseventsproext', JPATH_ADMINISTRATOR);
 
         if (!file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'))
             return array();
