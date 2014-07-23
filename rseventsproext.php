@@ -19,6 +19,12 @@ defined('_JEXEC') or die;
  */
 class PlgSearchRseventsproExt extends JPlugin
 {
+    public function __construct(& $subject, $config)
+    {
+        parent::__construct($subject, $config);
+        $this->loadLanguage();
+    }
+
     /**
      * @return array An array of search areas
      */
@@ -37,7 +43,6 @@ class PlgSearchRseventsproExt extends JPlugin
      */
     public function onContentSearch($text, $phrase='', $ordering='', $areas=null) {
         $db = JFactory::getDbo();
-        JFactory::getLanguage()->load('plg_search_rseventsproext', JPATH_ADMINISTRATOR);
 
         if (!file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'))
             return array();
@@ -53,7 +58,10 @@ class PlgSearchRseventsproExt extends JPlugin
             }
         }
 
-        $limit  = $this->params->def('search_limit', 50);
+        $limit = $this->params->def('search_limit', 50);
+        $search_description = (bool) $this->params->def('enable_event_description_search', true);
+        $search_location = (bool) $this->params->def('enable_event_location_search', true);
+        $search_contact = (bool) $this->params->def('enable_event_contact_search', true);
 
         $text = trim($text);
         if ($text == '') {
@@ -66,8 +74,19 @@ class PlgSearchRseventsproExt extends JPlugin
                 $text       = $db->Quote('%'.$db->escape($text, true).'%', false);
                 $wheres2    = array();
                 $wheres2[]  = 'e.name LIKE '.$text;
-                $wheres2[]  = 'e.description LIKE '.$text;
-                $where      = '(' . implode(') OR (', $wheres2) . ')';
+                if ($search_description) {
+                    $wheres2[]  = 'e.description LIKE '.$text;
+                }
+                if ($search_location) {
+                    $wheres2[] = "l.name LIKE $text";
+                    $wheres2[] = "l.address LIKE $text";
+                }
+                if ($search_contact) {
+                        $wheres2[]  = 'e.email LIKE '.$text;
+                        $wheres2[]  = 'e.phone LIKE '.$text;
+                        $wheres2[]  = 'e.URL LIKE '.$text;
+                    }
+                $where = '(' . implode(') OR (', $wheres2) . ')';
                 break;
 
             case 'all':
@@ -79,8 +98,19 @@ class PlgSearchRseventsproExt extends JPlugin
                     $word       = $db->Quote('%'.$db->escape($word, true).'%', false);
                     $wheres2    = array();
                     $wheres2[]  = 'e.name LIKE '.$word;
-                    $wheres2[]  = 'e.description LIKE '.$word;
-                    $wheres[]   = implode(' OR ', $wheres2);
+                    if ($search_description) {
+                        $wheres2[]  = 'e.description LIKE '.$word;
+                    }
+                    if ($search_location) {
+                        $wheres2[] = "l.name LIKE $word";
+                        $wheres2[] = "l.address LIKE $word";
+                    }
+                    if ($search_contact) {
+                        $wheres2[]  = 'e.email LIKE '.$word;
+                        $wheres2[]  = 'e.phone LIKE '.$word;
+                        $wheres2[]  = 'e.URL LIKE '.$word;
+                    }
+                    $wheres[] = implode(' OR ', $wheres2);
                 }
                 $where = '(' . implode(($phrase == 'all' ? ') AND (' : ') OR ('), $wheres) . ')';
                 break;
@@ -113,6 +143,7 @@ class PlgSearchRseventsproExt extends JPlugin
         $query->select('e.name AS section, \'2\' AS browsernav');
 
         $query->from('#__rseventspro_events AS e');
+        $query->leftJoin('#__rseventspro_locations AS l ON e.location = l.id');
         $query->where('('. $where .')' . ' AND e.published = 1 AND e.completed = 1 ');
         $query->group('e.id, e.name');
         $query->order($order);
@@ -148,7 +179,7 @@ class PlgSearchRseventsproExt extends JPlugin
 
                 $list[$key]->href = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($item->id,$item->title),true,RseventsproHelperRoute::getEventsItemid());
                 $list[$key]->text = strip_tags($item->text);
-                $list[$key]->section = 'RSEvents!Pro'.$categories;
+                $list[$key]->section = $categories;
             }
         }
         $rows[] = $list;
