@@ -10,6 +10,13 @@
 // no direct access
 defined('_JEXEC') or die;
 
+if (!file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'))
+    die('RSEventsPro has to be installed');
+
+require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
+require_once JPATH_SITE.'/components/com_rseventspro/helpers/route.php';
+require_once JPATH_SITE.'/administrator/components/com_search/helpers/search.php';
+
 /**
  * REvents!Pro Extended Search plugin
  *
@@ -31,6 +38,24 @@ class PlgSearchRseventsproExt extends JPlugin
     public function onContentSearchAreas() {
         return array('rseventsproext' => 'PLG_SEARCH_RSEVENTSPROEXT');
     }
+    
+    private function format_date($start, $end) {
+    if (rseventsproHelper::date($start, 'd.m.Y', true) ==
+        rseventsproHelper::date($end, 'd.m.Y', true)) {
+        // Start and end are the same day
+        $date = rseventsproHelper::date($start, 'D. d.m.Y', true);
+        // Change "Mon" to "Mo (Monday shorthand)
+        return substr_replace($date, '', 2, 1);
+    } else {
+        $start = rseventsproHelper::date($start, 'D. d.m.', true);
+        // Change "Mon" to "Mo (Monday shorthand)
+        $start = substr_replace($start, '', 2, 1);
+        $end = rseventsproHelper::date($end, 'D. d.m.Y', true);
+        $end = substr_replace($end, '', 2, 1);
+        return "$start-$end";
+    }
+}
+
 
     /**
      * RSEvents!Pro Search method
@@ -43,13 +68,6 @@ class PlgSearchRseventsproExt extends JPlugin
      */
     public function onContentSearch($text, $phrase='', $ordering='', $areas=null) {
         $db = JFactory::getDbo();
-
-        if (!file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'))
-            return array();
-
-        require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
-        require_once JPATH_SITE.'/components/com_rseventspro/helpers/route.php';
-        require_once JPATH_SITE.'/administrator/components/com_search/helpers/search.php';
 
         $searchText = $text;
         if (is_array($areas)) {
@@ -141,9 +159,15 @@ class PlgSearchRseventsproExt extends JPlugin
         $query->select('e.id,
                        e.name AS title,
                        e.start AS created,
+                       e.start,
+                       e.end,
                        e.icon,
-                       e.description AS text');
-        $query->select('e.URL AS section, \'2\' AS browsernav');
+                       e.phone,
+                       e.description,
+                       e.URL,
+                       l.name,
+                       l.address,
+                       2 AS browsernav');
 
         $query->from('#__rseventspro_events AS e');
         $query->leftJoin('#__rseventspro_locations AS l ON e.location = l.id');
@@ -154,40 +178,31 @@ class PlgSearchRseventsproExt extends JPlugin
         $db->setQuery($query, 0, $limit);
         $list = $db->loadObjectList();
 
-        $user   = JFactory::getUser();
-        $groups = implode(',', $user->getAuthorisedViewLevels());
+        foreach($list as $key => $item) {
+            if (!rseventsproHelper::canview($item->id))
+                unset($list[$key]);
 
-        if (isset($list)) {
-            foreach($list as $key => $item) {
-                if (!rseventsproHelper::canview($item->id))
-                    unset($list[$key]);
+            $list[$key]->href = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.
+                                                         rseventsproHelper::sef($item->id,$item->title),
+                                                         true,
+                                                         RseventsproHelperRoute::getEventsItemid());
+            $list[$key]->text = '';
+            $list[$key]->date = $this->format_date($item->start, $item->end);
+            if (!empty($item->name))
+                $list[$key]->location = "{$item->name} {$item->address}";
 
-                $list[$key]->href = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.
-                                                             rseventsproHelper::sef($item->id,$item->title),
-                                                             true,
-                                                             RseventsproHelperRoute::getEventsItemid());
-                $list[$key]->text = strip_tags($item->text);
-                //Icon
+            if (!empty($item->url))
+                $list[$key]->section = $item->url;
+            else
+                $list[$key]->section = $item->phone;
+            //Icon
+            if ($list[$key]->icon) {
                 $list[$key]->image = JURI::root().
                                     'components/com_rseventspro/assets/images/events/thumbs/s_'.
                                     $list[$key]->icon;
             }
         }
-        $rows[] = $list;
 
-        $results = array();
-        if (count($rows)) {
-            foreach($rows as $row) {
-                $new_row = array();
-                foreach($row as $key => $article) {
-                    if (searchHelper::checkNoHTML($article, $searchText, array('text', 'title'))) {
-                        $new_row[] = $article;
-                    }
-                }
-                $results = array_merge($results, (array) $new_row);
-            }
-        }
-
-        return $results;
+        return $list;
     }
 }
